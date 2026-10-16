@@ -1,0 +1,13 @@
+# Secrets, never commit your key
+.env
+.env.*
+*.local
+# Deps / build
+node_modules/
+__pycache__/
+*.pyc
+vendor/
+bin/
+obj/
+target/
+*.class
