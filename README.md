@@ -4,6 +4,7 @@ Real time email verification you can drop into any language, workflow tool or AI
 
 - **Website:** https://mailtester.ninja
 - **API docs:** https://mailtester.ninja/api/
+- **OpenAPI 3.1 spec:** https://mailtester.ninja/openapi.json (import into Postman, Swagger, Power Automate or an AI agent)
 - **Free API token:** https://mailtester.ninja/free-email-verification-api/
 - **Paid key:** https://mailtester.ninja/verify-emails-unlimited/
 - **Try it free (web):** https://mailtester.ninja/email-verifier/
@@ -37,6 +38,8 @@ Response:
 ```
 
 That is the whole API. Everything in this repo is that call, wrapped for your language or tool.
+
+The JSON body is served as `text/plain` by default; send `Accept: application/json` to get `application/json`.
 
 ---
 
