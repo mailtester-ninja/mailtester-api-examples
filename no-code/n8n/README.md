@@ -10,7 +10,7 @@ Add real time email verification to any n8n workflow with a single **HTTP Reques
    - **URL:** `https://happy.mailtester.ninja/ninja`
    - **Send Query Parameters:** on
      - `email` = `{{ $json.email }}` (map to your field)
-     - `key` = your key ([get one](https://mailtester.ninja/verify-emails-unlimited/))
+     - `key` = your [paid key](https://mailtester.ninja/verify-emails-unlimited/), or a [free token](https://mailtester.ninja/free-email-verification-api/) to try it (50 checks a day, one request every 30 seconds)
 3. The node returns the JSON response. Read `{{ $json.code }}`:
    - `ok` valid and deliverable
    - `ko` invalid, will bounce
@@ -33,6 +33,10 @@ For lists, add a **Loop Over Items** (batch size 1) plus a **Wait** node (about 
 
 ## Importable workflow
 
-[`workflow.json`](workflow.json) in this folder is a minimal, importable n8n workflow: a manual trigger, the HTTP Request node pre-filled, and an IF node that splits valid from invalid. Import it via **n8n > Workflows > Import from File**, then set your key.
+[`workflow.json`](workflow.json) in this folder is a minimal, importable n8n workflow: a manual trigger, the HTTP Request node pre-filled, and an IF node that splits valid from invalid. Import it via **n8n > Workflows > Import from File**, then set your key (a paid key, or a free token to try it).
+
+## Free tier
+
+Avoid `key=free` in n8n cloud: its servers share their IP addresses with all its users, and the keyless tier is counted per IP. With a free token, space calls by 30 seconds: on the free tier the API answers HTTP 429 when you call too fast or reach the daily limit, and that answer is not a verdict. A paid key removes the wait.
 
 Docs: https://mailtester.ninja/api/

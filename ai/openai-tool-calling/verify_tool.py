@@ -2,13 +2,16 @@
 Give an OpenAI model a verify_email tool backed by MailTester Ninja.
 
 pip install openai requests
-export OPENAI_API_KEY=...        export MAILTESTER_KEY=...   (https://mailtester.ninja/verify-emails-unlimited/)
+export OPENAI_API_KEY=...
+export MAILTESTER_KEY=...   optional: without it the free tier is used (key=free, 10 checks a day).
+                            Free token (50 a day): https://mailtester.ninja/free-email-verification-api/
+                            Paid key: https://mailtester.ninja/verify-emails-unlimited/
 """
 import os, json, requests
 from openai import OpenAI
 
 client = OpenAI()
-MT_KEY = os.environ["MAILTESTER_KEY"]
+MT_KEY = os.environ.get("MAILTESTER_KEY", "free")
 
 # The tool the model can call.
 TOOLS = [{
@@ -29,6 +32,9 @@ TOOLS = [{
 def verify_email(email: str) -> dict:
     r = requests.get("https://happy.mailtester.ninja/ninja",
                      params={"email": email, "key": MT_KEY}, timeout=30)
+    if r.status_code == 429:
+        # Free tier limit (one request every 30 s, daily quota): not a verdict.
+        return {"email": email, "code": "limit", "message": r.json().get("message")}
     r.raise_for_status()
     d = r.json()
     # Hand the model a compact, honest result.

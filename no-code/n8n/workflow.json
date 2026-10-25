@@ -46,7 +46,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [680, 300],
-      "notes": "Replace YOUR_KEY with your subscription key. Get one at https://mailtester.ninja/verify-emails-unlimited/"
+      "notes": "Replace YOUR_KEY with your paid key (https://mailtester.ninja/verify-emails-unlimited/) or, to try it, a free token (https://mailtester.ninja/free-email-verification-api/): 50 checks a day, one request every 30 seconds."
     },
     {
       "parameters": {

@@ -10,6 +10,8 @@ GET https://happy.mailtester.ninja/ninja?email=<EMAIL>&key=<YOUR_KEY>
 
 and reads `code` (`ok` valid, `ko` invalid, `mb` uncertain) plus `message`.
 
+No key yet? Use `key=free` to try it (10 checks a day per IP, one request every 30 seconds), or a [free token](https://mailtester.ninja/free-email-verification-api/) (50 a day). Paid keys remove the wait.
+
 ---
 
 ## 1. System prompt (give the agent the skill)
@@ -24,7 +26,8 @@ URL encode the email. Read the JSON field "code":
   - "mb": uncertain. The domain is catch-all or could not be probed; do not
     claim it is valid.
 Report the verdict using the "message" field, and never invent a result:
-only state what the API returned.
+only state what the API returned. If the HTTP status is 429, a free tier
+limit was reached: say so, wait as the message says, and give no verdict.
 ```
 
 ## 2. One shot prompt (inside a tool enabled chat)
@@ -49,6 +52,7 @@ otherwise). Verify them one at a time and respect the rate limit.
 
 - Tell the agent to **report, not guess**. The value of the tool is an honest verdict; an agent that fabricates "valid" defeats the purpose.
 - Treat `mb` as **uncertain**, not valid. Catch-all domains accept everything.
+- On the free tier, an HTTP 429 answer is a **limit, not a verdict**: one request every 30 seconds, and a daily quota.
 - Keep the key in an environment variable or the framework's secret store, never in the prompt text you log.
 
 See the framework specific examples:

@@ -7,7 +7,7 @@ Expose a `verify_email` function to an OpenAI model so it can check an address m
 ```bash
 pip install openai requests
 export OPENAI_API_KEY=...
-export MAILTESTER_KEY=...        # https://mailtester.ninja/verify-emails-unlimited/
+export MAILTESTER_KEY=...        # optional: free tier (key=free) when unset
 python verify_tool.py
 ```
 
@@ -18,3 +18,5 @@ python verify_tool.py
 The function hands the model a trimmed result and nothing else, so the model reports the real verdict instead of guessing. Treat `mb` as uncertain, not valid.
 
 Docs: https://mailtester.ninja/api/
+
+**Keys.** Without `MAILTESTER_KEY` the tool uses the free tier (`key=free`, 10 checks a day per IP, one request every 30 seconds). A [free token](https://mailtester.ninja/free-email-verification-api/) gives 50 checks a day; a [paid key](https://mailtester.ninja/verify-emails-unlimited/) removes the wait. When a free limit is hit, the tool returns `code: "limit"` with the API message, so the model reports the limit instead of a verdict.

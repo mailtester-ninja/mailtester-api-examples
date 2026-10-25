@@ -6,7 +6,7 @@ Verify email addresses from Python. Needs only `requests`.
 
 ```bash
 pip install requests
-export MAILTESTER_KEY=your_key   # get one at https://mailtester.ninja/verify-emails-unlimited/
+export MAILTESTER_KEY=your_key   # optional, see Keys below
 ```
 
 ## Verify one address
@@ -15,7 +15,7 @@ export MAILTESTER_KEY=your_key   # get one at https://mailtester.ninja/verify-em
 import os
 from mailtester import verify
 
-result = verify("info@apple.com", os.environ["MAILTESTER_KEY"])
+result = verify("info@apple.com", os.environ.get("MAILTESTER_KEY", "free"))
 print(result["code"], result["message"])   # ok Accepted
 ```
 
@@ -37,7 +37,7 @@ elif code == "mb":
 from mailtester import clean_list
 
 emails = ["info@apple.com", "test@gmail.com", "someone@example.com"]
-for email, res in clean_list(emails, key, delay=1.0):   # delay respects the rate limit
+for email, res in clean_list(emails, key):   # waits 30 s on the free tier, 1 s on a paid key
     if res["code"] == "ok":
         print("keep", email)
 ```
@@ -48,8 +48,16 @@ for email, res in clean_list(emails, key, delay=1.0):   # delay respects the rat
 python mailtester.py
 ```
 
+## Keys
+
+- **No key:** leave `MAILTESTER_KEY` unset and the example uses the free tier (`key=free`): 10 checks a day per IP, one request every 30 seconds.
+- **Free token:** 50 checks a day, one request every 30 seconds, no card: https://mailtester.ninja/free-email-verification-api/
+- **Paid key:** full speed, from 100,000 checks a day: https://mailtester.ninja/verify-emails-unlimited/
+
+On the free tier the API answers HTTP 429 when you call too fast or reach the daily limit. That answer is not a verdict: its `message` says how long to wait, and the example reports it as an error.
+
 ## Rate limits
 
-Keep `delay` at roughly `10 / your_rate` seconds. Pro = 11 req/10s (so delay ~1s), Ultimate = 23 req/10s (so delay ~0.45s). Multiply your plan quantity at checkout to go faster.
+Free tier and free tokens: one request every 30 seconds, the example waits automatically. Keep `delay` at roughly `10 / your_rate` seconds. Pro = 11 req/10s (so delay ~1s), Ultimate = 23 req/10s (so delay ~0.45s). Multiply your plan quantity at checkout to go faster.
 
 Docs: https://mailtester.ninja/api/

@@ -2,13 +2,16 @@
 Give Claude a verify_email tool backed by MailTester Ninja.
 
 pip install anthropic requests
-export ANTHROPIC_API_KEY=...     export MAILTESTER_KEY=...   (https://mailtester.ninja/verify-emails-unlimited/)
+export ANTHROPIC_API_KEY=...
+export MAILTESTER_KEY=...   optional: without it the free tier is used (key=free, 10 checks a day).
+                            Free token (50 a day): https://mailtester.ninja/free-email-verification-api/
+                            Paid key: https://mailtester.ninja/verify-emails-unlimited/
 """
 import os, requests
 import anthropic
 
 client = anthropic.Anthropic()
-MT_KEY = os.environ["MAILTESTER_KEY"]
+MT_KEY = os.environ.get("MAILTESTER_KEY", "free")
 
 TOOLS = [{
     "name": "verify_email",
@@ -25,6 +28,9 @@ TOOLS = [{
 def verify_email(email: str) -> dict:
     r = requests.get("https://happy.mailtester.ninja/ninja",
                      params={"email": email, "key": MT_KEY}, timeout=30)
+    if r.status_code == 429:
+        # Free tier limit (one request every 30 s, daily quota): not a verdict.
+        return {"email": email, "code": "limit", "message": r.json().get("message")}
     r.raise_for_status()
     d = r.json()
     return {"email": d.get("email"), "code": d.get("code"), "message": d.get("message")}

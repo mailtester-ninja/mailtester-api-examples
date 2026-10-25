@@ -7,7 +7,7 @@ Give Claude a `verify_email` tool so it can check deliverability while it works.
 ```bash
 pip install anthropic requests
 export ANTHROPIC_API_KEY=...
-export MAILTESTER_KEY=...        # https://mailtester.ninja/verify-emails-unlimited/
+export MAILTESTER_KEY=...        # optional: free tier (key=free) when unset
 python verify_tool.py
 ```
 
@@ -18,3 +18,5 @@ python verify_tool.py
 Keep the guardrail in your prompt: report the returned verdict, never invent one, and treat `mb` (catch-all or unprobeable) as uncertain.
 
 Docs: https://mailtester.ninja/api/
+
+**Keys.** Without `MAILTESTER_KEY` the tool uses the free tier (`key=free`, 10 checks a day per IP, one request every 30 seconds). A [free token](https://mailtester.ninja/free-email-verification-api/) gives 50 checks a day; a [paid key](https://mailtester.ninja/verify-emails-unlimited/) removes the wait. When a free limit is hit, the tool returns `code: "limit"` with the API message, so the model reports the limit instead of a verdict.

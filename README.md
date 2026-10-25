@@ -4,20 +4,23 @@ Real time email verification you can drop into any language, workflow tool or AI
 
 - **Website:** https://mailtester.ninja
 - **API docs:** https://mailtester.ninja/api/
-- **Get a key:** https://mailtester.ninja/verify-emails-unlimited/
+- **Free API token:** https://mailtester.ninja/free-email-verification-api/
+- **Paid key:** https://mailtester.ninja/verify-emails-unlimited/
 - **Try it free (web):** https://mailtester.ninja/email-verifier/
 
-> Occasional checks are free on the website, no signup. For production use and higher volumes, a key unlocks the REST API at some of the best prices on the market, with nothing stored.
+> The API is free to try: call it with `key=free` and no signup (10 checks a day), or get a [free token](https://mailtester.ninja/free-email-verification-api/) in one click (50 checks a day). For production use and higher volumes, a paid key removes the wait at some of the best prices on the market, with nothing stored.
 
 ---
 
 ## Quickstart
 
-One GET request, two parameters.
+One GET request, two parameters. Try it now, no signup:
 
 ```bash
-curl "https://happy.mailtester.ninja/ninja?email=info@apple.com&key=YOUR_KEY"
+curl "https://happy.mailtester.ninja/ninja?email=info@apple.com&key=free"
 ```
+
+Then swap `free` for your free token or your paid key.
 
 Response:
 
@@ -46,9 +49,17 @@ GET https://happy.mailtester.ninja/ninja
 | Parameter | Required | Description |
 |-----------|----------|-------------|
 | `email`   | yes | The email address to verify. URL encode it. |
-| `key`     | yes | Your subscription key, without the `{` and `}`. |
+| `key`     | yes | `free`, a free token (`mtf_...`), or your subscription key without the `{` and `}`. |
 
-Get your key at https://mailtester.ninja/verify-emails-unlimited/ , it arrives by email right after checkout.
+## Keys
+
+| Access | Daily checks | Pace | `key` value |
+|--------|--------------|------|-------------|
+| No token | 10 per IP | 1 request every 30 s | `free` |
+| [Free token](https://mailtester.ninja/free-email-verification-api/) | 50 per token | 1 request every 30 s | `mtf_...`, valid 7 days, renewable |
+| [Paid plans](https://mailtester.ninja/verify-emails-unlimited/) | 100k to 200k+ | up to 23 requests per 10 s | your subscription key, sent by email right after checkout |
+
+No-code tools (n8n cloud, Make, Zapier, Clay) and Google Sheets call from shared servers: use a free token there, since `key=free` is counted per IP.
 
 ## The response
 
@@ -76,13 +87,12 @@ We never guess "valid" on a catch-all domain. We label the uncertainty honestly 
 
 ## Rate limits
 
-The key rate depends on your plan:
-
+- **Free (`key=free` or a free token):** one request every 30 seconds. Over that pace, or past the daily limit, the API answers **HTTP 429** with a JSON `message` saying how long to wait. A 429 is not a verdict: retry later, do not treat the address as invalid.
 - **Pro:** 11 requests per 10 seconds (100k per day).
 - **Ultimate:** 23 requests per 10 seconds (200k per day).
 - Buy a quantity at checkout to multiply the rate, for example Ultimate x5 = 1M per day.
 
-For lists, verify sequentially or in small batches and respect the rate. Every example in this repo that loops includes throttling.
+For lists, verify sequentially or in small batches and respect the rate. Every example in this repo that loops includes throttling, 30 seconds between calls on the free tier.
 
 ---
 

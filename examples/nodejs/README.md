@@ -5,7 +5,7 @@ Verify email addresses from Node. Uses the built in `fetch` (Node 18+), so there
 ## Run
 
 ```bash
-export MAILTESTER_KEY=your_key   # https://mailtester.ninja/verify-emails-unlimited/
+export MAILTESTER_KEY=your_key   # optional, see Keys below
 node mailtester.js
 ```
 
@@ -14,7 +14,7 @@ node mailtester.js
 ```js
 const { verify } = require('./mailtester');
 
-const r = await verify('info@apple.com', process.env.MAILTESTER_KEY);
+const r = await verify('info@apple.com', process.env.MAILTESTER_KEY || 'free');
 console.log(r.code, r.message);   // ok Accepted
 ```
 
@@ -33,7 +33,7 @@ switch (r.code) {
 ```js
 const { cleanList } = require('./mailtester');
 
-const rows = await cleanList(emails, key, 1000); // delayMs respects the rate limit
+const rows = await cleanList(emails, key); // waits 30 s on the free tier, 1 s on a paid key
 const keep = rows.filter(r => r.result.code === 'ok').map(r => r.email);
 ```
 
@@ -43,8 +43,16 @@ const keep = rows.filter(r => r.result.code === 'ok').map(r => r.email);
 
 Using `import`? Swap `require`/`module.exports` for `import`/`export`, the fetch call is identical.
 
+## Keys
+
+- **No key:** leave `MAILTESTER_KEY` unset and the example uses the free tier (`key=free`): 10 checks a day per IP, one request every 30 seconds.
+- **Free token:** 50 checks a day, one request every 30 seconds, no card: https://mailtester.ninja/free-email-verification-api/
+- **Paid key:** full speed, from 100,000 checks a day: https://mailtester.ninja/verify-emails-unlimited/
+
+On the free tier the API answers HTTP 429 when you call too fast or reach the daily limit. That answer is not a verdict: its `message` says how long to wait, and the example reports it as an error.
+
 ## Rate limits
 
-`delayMs` ~= `10000 / your_rate`. Pro = 11 req/10s (~1000ms), Ultimate = 23 req/10s (~450ms).
+Free tier and free tokens: one request every 30 seconds, the example waits automatically. `delayMs` ~= `10000 / your_rate`. Pro = 11 req/10s (~1000ms), Ultimate = 23 req/10s (~450ms).
 
 Docs: https://mailtester.ninja/api/

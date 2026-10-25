@@ -4,7 +4,11 @@
  * Setup:
  *   1. In your Sheet: Extensions > Apps Script, paste this file.
  *   2. Project Settings > Script Properties: add MAILTESTER_KEY = your key.
- *      Get a key at https://mailtester.ninja/verify-emails-unlimited/
+ *      To try it free, use a free token (50 checks a day, one request every 30 s):
+ *        https://mailtester.ninja/free-email-verification-api/
+ *      key=free does not suit Sheets: Google's servers share their IP addresses,
+ *      and the keyless tier is counted per IP.
+ *      Paid key (full speed): https://mailtester.ninja/verify-emails-unlimited/
  *   3. Back in the Sheet, use the custom function:  =MT_VERIFY(A2)
  *      or run verifyColumn() from the Apps Script editor for a whole column.
  */
@@ -13,13 +17,17 @@ var ENDPOINT = 'https://happy.mailtester.ninja/ninja';
 
 function getKey_() {
   var key = PropertiesService.getScriptProperties().getProperty('MAILTESTER_KEY');
-  if (!key) throw new Error('Set MAILTESTER_KEY in Script Properties. Get one at https://mailtester.ninja/verify-emails-unlimited/');
+  if (!key) throw new Error('Set MAILTESTER_KEY in Script Properties: a free token from https://mailtester.ninja/free-email-verification-api/ or a paid key from https://mailtester.ninja/verify-emails-unlimited/');
   return key;
 }
 
 function verifyOne_(email) {
   var url = ENDPOINT + '?email=' + encodeURIComponent(email) + '&key=' + encodeURIComponent(getKey_());
   var resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+  if (resp.getResponseCode() === 429) {
+    var lim = JSON.parse(resp.getContentText());
+    return { code: 'error', message: 'Free limit: ' + lim.message };
+  }
   if (resp.getResponseCode() !== 200) return { code: 'error', message: 'HTTP ' + resp.getResponseCode() };
   return JSON.parse(resp.getContentText());
 }
@@ -47,6 +55,6 @@ function verifyColumn() {
     var r = verifyOne_(String(email).trim());
     sheet.getRange(row, 2).setValue(r.code || '');
     sheet.getRange(row, 3).setValue(r.message || '');
-    Utilities.sleep(1000); // ~1s keeps Pro plans within the rate limit
+    Utilities.sleep(getKey_().indexOf('mtf_') === 0 ? 30000 : 1000); // 30 s on a free token, ~1 s on Pro
   }
 }
