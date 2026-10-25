@@ -69,7 +69,7 @@ No-code tools (n8n cloud, Make, Zapier, Clay) and Google Sheets call from shared
 | `user` | A human readable guess of the name, derived from the address. |
 | `domain` | The domain part of the address. |
 | `mx` | The mail server that answered, when there is one. |
-| `code` | The machine readable verdict: `ok`, `ko` or `mb` (see below). |
+| `code` | The machine readable verdict: `ok`, `ko` or `mb`, or `--` when there is no verdict (see below). |
 | `message` | A human readable label for the verdict. |
 | `connections` | Simultaneous connections currently used by your key. |
 
@@ -82,12 +82,13 @@ Branch on `code`, show `message` to humans.
 | `ok` | Valid and deliverable | `Accepted` | Safe to send. |
 | `ko` | Invalid, will bounce | `Rejected`, `No MX` | Do not send. Drop it from your list. |
 | `mb` | Maybe, cannot be confirmed | `Catch-All`, `MX Error`, `Timeout`, `SPAM Block`, `Unknown` | Uncertain. The domain accepts everything (catch-all) or the server could not be probed. Decide by risk. |
+| `--` | No verdict, the address was not checked | `Invalid Key`, `Disabled Key`, or the free limit message (HTTP 429) | Fix the key, or wait and retry. Never drop the address on a `--`. |
 
 We never guess "valid" on a catch-all domain. We label the uncertainty honestly so you keep control.
 
 ## Rate limits
 
-- **Free (`key=free` or a free token):** one request every 30 seconds. Over that pace, or past the daily limit, the API answers **HTTP 429** with a JSON `message` saying how long to wait. A 429 is not a verdict: retry later, do not treat the address as invalid.
+- **Free (`key=free` or a free token):** one request every 30 seconds. Over that pace, or past the daily limit, the API answers **HTTP 429** with `code` set to `--` and a JSON `message` saying how long to wait. A 429 is not a verdict: retry later, do not treat the address as invalid.
 - **Pro:** 11 requests per 10 seconds (100k per day).
 - **Ultimate:** 23 requests per 10 seconds (200k per day).
 - Buy a quantity at checkout to multiply the rate, for example Ultimate x5 = 1M per day.
