@@ -39,7 +39,10 @@ def run(user_message: str) -> str:
     messages = [{"role": "user", "content": user_message}]
     while True:
         resp = client.messages.create(
-            model="claude-sonnet-4-5"  # set to your current Claude model, max_tokens=400, tools=TOOLS, messages=messages,
+            model="claude-opus-5-5",  # or your current Claude model
+            max_tokens=16000,
+            tools=TOOLS,
+            messages=messages,
         )
         if resp.stop_reason != "tool_use":
             return "".join(b.text for b in resp.content if b.type == "text")
