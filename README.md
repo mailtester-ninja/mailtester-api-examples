@@ -13,6 +13,17 @@ Real time email verification you can drop into any language, workflow tool or AI
 
 ---
 
+## Official SDKs
+
+| Language | Install | Package |
+|----------|---------|---------|
+| JavaScript and TypeScript | `npm install @mailtester-ninja/client` | [npm](https://www.npmjs.com/package/@mailtester-ninja/client) · [source](https://github.com/mailtester-ninja/mailtester-js) |
+| Python | `pip install mailtester-ninja` | [PyPI](https://pypi.org/project/mailtester-ninja/) · [source](https://github.com/mailtester-ninja/mailtester-python) |
+
+Both are typed, have no dependencies, pace list verification for you and raise clear errors (invalid key, limit reached). For other languages, the examples below wrap the same single call.
+
+---
+
 ## Quickstart
 
 One GET request, two parameters. Try it now, no signup:
