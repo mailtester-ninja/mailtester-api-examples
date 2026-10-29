@@ -1,0 +1,12 @@
+{
+  "servers": {
+    "mailtester-ninja": {
+      "type": "http",
+      "url": "https://mcp.mailtester.ninja/mcp",
+      "headers": { "X-API-Key": "${input:mailtester-key}" }
+    }
+  },
+  "inputs": [
+    { "type": "promptString", "id": "mailtester-key", "description": "MailTester Ninja key", "password": true }
+  ]
+}

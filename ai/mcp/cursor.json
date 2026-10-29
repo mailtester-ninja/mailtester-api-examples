@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "mailtester-ninja": {
+      "url": "https://mcp.mailtester.ninja/mcp",
+      "headers": { "X-API-Key": "YOUR_KEY" }
+    }
+  }
+}

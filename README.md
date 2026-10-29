@@ -128,8 +128,8 @@ For lists, verify sequentially or in small batches and respect the rate. Every e
 ### AI and agents
 | | | |
 |---|---|---|
-| [Ready to use prompts](ai/prompts) | [OpenAI tool calling](ai/openai-tool-calling) | [Claude tool use](ai/claude-tool-use) |
-| [LangChain tool](ai/langchain) | | |
+| [MCP server (remote, official)](ai/mcp) | [Ready to use prompts](ai/prompts) | [OpenAI tool calling](ai/openai-tool-calling) |
+| [Claude tool use](ai/claude-tool-use) | [LangChain tool](ai/langchain) | |
 
 ---
 
