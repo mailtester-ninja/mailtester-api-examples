@@ -37,7 +37,7 @@ For lists, add a **Loop Over Items** (batch size 1) plus a **Wait** node (about 
 
 ## Find a work email
 
-The official node [`n8n-nodes-mailtester-ninja`](https://www.npmjs.com/package/n8n-nodes-mailtester-ninja) has a **Find** operation (paid key): first name, last name and company domain in, `found`, `email`, `guess`, `code`, `message` and `tried` out. With an HTTP Request node, call `https://happy.mailtester.ninja/find` with the query parameters `first`, `last`, `domain` and `key`. Each format tested counts as one verification. Details: [Finder API](../../README.md#find-a-work-email-finder-api).
+The official node [`n8n-nodes-mailtester-ninja`](https://www.npmjs.com/package/n8n-nodes-mailtester-ninja) has a **Find** operation (paid key): first name, last name and company domain in, `found`, `email`, `format`, `confidence`, `guess`, `code`, `message`, `tried` and `tested` out. With an HTTP Request node, call `https://happy.mailtester.ninja/find` with the query parameters `first`, `last`, `domain` and `key`. Each format tested counts as one verification. Details: [Finder API](../../README.md#find-a-work-email-finder-api).
 
 ## Free tier
 

@@ -27,10 +27,10 @@ if [ "$STATUS" != "200" ]; then
   exit 1
 fi
 
-echo "$RESP" | jq '{found, email, guess, code, message, permutations, reason}'
+echo "$RESP" | jq '{found, email, format, confidence, guess, code, message, permutations, tested, reason}'
 
 if [ "$(echo "$RESP" | jq -r '.found')" = "true" ]; then
-  echo "-> found: $(echo "$RESP" | jq -r '.email')"
+  echo "-> found: $(echo "$RESP" | jq -r '.email') ($(echo "$RESP" | jq -r '.format'), confidence $(echo "$RESP" | jq -r '.confidence'))"
 elif [ "$(echo "$RESP" | jq -r '.guess')" != "null" ]; then
   echo "-> not confirmed, most likely: $(echo "$RESP" | jq -r '.guess') ($(echo "$RESP" | jq -r '.message'))"
 else

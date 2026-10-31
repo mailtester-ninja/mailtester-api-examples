@@ -125,12 +125,17 @@ curl "https://happy.mailtester.ninja/find?first=Jane&last=Doe&domain=example.com
   "message": "Accepted",
   "found": true,
   "email": "jane.doe@example.com",
+  "format": "first.last",
+  "confidence": "high",
   "guess": null,
   "first": "Jane",
   "last": "Doe",
   "domain": "example.com",
   "mx": "mx.example.com",
   "permutations": 1,
+  "tested": [
+    { "email": "jane.doe@example.com", "code": "ok", "message": "Accepted" }
+  ],
   "connections": 1,
   "limit": 100000,
   "rate": 1,
@@ -143,6 +148,7 @@ curl "https://happy.mailtester.ninja/find?first=Jane&last=Doe&domain=example.com
 - The search stops at the first address the mail server accepts, or when the answer applies to the whole domain. On a catch-all domain nothing can be confirmed, and `guess` holds the most common format.
 - Personal email providers such as gmail.com are not searched (`message` is `Webmail`): an accepted address there could belong to anyone with the same name.
 - `code`: `ok` found, `ko` not found, `mb` uncertain, `--` no answer (key problem or rate limit). `reason` explains, in plain English, why nothing was found.
+- `format` is the pattern of the address returned (`first.last`, `flast`, `first`, `firstlast`, `first_last`, `f.last`): reuse it to verify colleagues at the same company with one verification each. `confidence` tells how sure the address is to belong to this person: `high` with the first and last name in it, `medium` with an initial (a namesake may share it), `low` with the first name only. `tested` lists every address checked, with its verdict.
 - **Billing:** each format tested counts as one verification against your daily limit and your rate, even when nothing is found (`permutations`). The `/find` call itself is not counted.
 - Over the rate of your key, the API answers HTTP 429 with a `Retry-After` header. One key can run up to 60 searches an hour on the same domain.
 
