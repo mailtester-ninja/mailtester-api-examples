@@ -22,6 +22,10 @@ r, err := Verify("info@apple.com", key)
 
 [`mailtester.go`](mailtester.go) has a typed `Result` and a `Verify` function. Copy `Verify` into your package as is.
 
+## Find a work email (paid key)
+
+The Finder API is the same kind of call: `GET https://happy.mailtester.ninja/find?first=Jane&last=Doe&domain=example.com&key=YOUR_KEY`, URL-encoded like the verification. Read `found`, `email`, `guess`, `code`, `message` and `permutations` from the JSON answer. Each format tested counts as one verification. Details: [Finder API](../../README.md#find-a-work-email-finder-api).
+
 ## Keys
 
 - **No key:** leave `MAILTESTER_KEY` unset and the example uses the free tier (`key=free`): 10 checks a day per IP, one request every 30 seconds.

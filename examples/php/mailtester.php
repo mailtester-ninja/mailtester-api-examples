@@ -1,6 +1,7 @@
 <?php
 /**
- * MailTester Ninja, email verification in PHP.
+ * MailTester Ninja, email verification in PHP, and the Finder API
+ * (work email from a name and a company domain, paid key).
  *
  * Plain PHP with cURL, no dependencies, no framework.
  * Keys:
@@ -11,6 +12,7 @@
  */
 
 const MAILTESTER_ENDPOINT = 'https://happy.mailtester.ninja/ninja';
+const MAILTESTER_FIND_ENDPOINT = 'https://happy.mailtester.ninja/find';
 const MAILTESTER_FREE_KEY = 'free';
 const MAILTESTER_FREE_DELAY = 30.0;
 
@@ -56,6 +58,43 @@ function mailtester_verify(string $email, string $key = MAILTESTER_FREE_KEY, int
     $data = json_decode($body, true);
     if (!is_array($data)) {
         throw new RuntimeException('Invalid JSON response');
+    }
+    return $data;
+}
+
+/**
+ * Find a work email address from a first name, a last name and a company domain (paid key).
+ * MailTester Ninja tests the most common formats one by one (first.last, flast, first,
+ * firstlast, first_last, f.last) and returns the first address the mail server accepts.
+ * Useful keys: 'found', 'email', 'guess' (catch-all domains, not verified), 'code',
+ * 'message', 'permutations' (formats tested, each one counted as a verification), 'reason'.
+ *
+ * @throws RuntimeException on transport error, on HTTP 429 (the key is at its maximum rate:
+ *         retry in a few seconds) and on other errors (400 invalid parameters, 403 free key).
+ */
+function mailtester_find(string $first, string $last, string $domain, string $key, int $timeout = 60): array
+{
+    $url = MAILTESTER_FIND_ENDPOINT . '?' . http_build_query(['first' => $first, 'last' => $last, 'domain' => $domain, 'key' => $key]);
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => $timeout,
+        CURLOPT_USERAGENT      => 'mailtester-php-example',
+    ]);
+    $body = curl_exec($ch);
+    if ($body === false) {
+        $err = curl_error($ch);
+        curl_close($ch);
+        throw new RuntimeException("Request failed: $err");
+    }
+    $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    $data = json_decode($body, true);
+    if ($status !== 200 || !is_array($data)) {
+        $reason = is_array($data) ? ($data['reason'] ?? $data['message'] ?? '') : trim((string) $body);
+        throw new RuntimeException("HTTP $status: $reason");
     }
     return $data;
 }
@@ -113,4 +152,10 @@ if (PHP_SAPI === 'cli' && isset($argv) && realpath($argv[0]) === __FILE__) {
         }
     }
     echo "\nDeliverable: " . implode(', ', $kept) . "\n";
+
+    // 3) find a work email (Finder API, paid key only)
+    if (!mailtester_is_free($key)) {
+        $found = mailtester_find('Jane', 'Doe', 'example.com', $key);
+        printf("\nFind Jane Doe at example.com: %s (%d formats tested)\n", $found['email'] ?? $found['message'], $found['permutations']);
+    }
 }

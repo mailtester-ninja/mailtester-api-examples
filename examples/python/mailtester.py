@@ -1,7 +1,8 @@
 """
 MailTester Ninja, email verification in Python.
 
-Verify one address or clean a whole list, over the real time API.
+Verify one address or clean a whole list, over the real time API, and find a
+person's work email from their name and company domain (Finder API, paid key).
 No dependencies beyond `requests`:  pip install requests
 
 Keys:
@@ -19,12 +20,17 @@ from urllib.parse import quote
 import requests
 
 ENDPOINT = "https://happy.mailtester.ninja/ninja"
+FIND_ENDPOINT = "https://happy.mailtester.ninja/find"
 FREE_KEY = "free"          # no signup, 10 checks a day per IP
 FREE_DELAY = 30.0          # free tier: one request every 30 seconds
 
 
 class FreeLimitError(RuntimeError):
     """The free tier refused the call (HTTP 429): wait, or use a paid key."""
+
+
+class RateLimitError(RuntimeError):
+    """The key is at its maximum rate (HTTP 429): not a result, retry in a few seconds."""
 
 
 def is_free(key: str) -> bool:
@@ -53,6 +59,38 @@ def verify(email: str, key: str = FREE_KEY, timeout: int = 30) -> dict:
         raise FreeLimitError(resp.json().get("message", "Free API limit reached"))
     resp.raise_for_status()
     return resp.json()
+
+
+def find(first: str, last: str, domain: str, key: str, timeout: int = 60) -> dict:
+    """Find a work email address from a first name, a last name and a company domain.
+
+    Needs a paid key. MailTester Ninja tests the most common formats one by one
+    (first.last, flast, first, firstlast, first_last, f.last) and returns the first
+    address the mail server accepts. Useful fields:
+      found         -> True when an address was accepted
+      email         -> the address found, or None
+      guess         -> on a catch-all domain, the most common format (not verified)
+      code/message  -> "ok" found, "ko" not found, "mb" uncertain, "--" no answer
+      permutations  -> formats tested, each one counted as a verification
+      reason        -> why nothing was found, in plain English
+
+    Raises RateLimitError on HTTP 429 and requests.HTTPError on other errors
+    (400 invalid parameters, 403 free key).
+    """
+    resp = requests.get(
+        FIND_ENDPOINT,
+        params={"first": first, "last": last, "domain": domain, "key": key},
+        timeout=timeout,
+    )
+    try:
+        body = resp.json()
+    except ValueError:
+        body = {"reason": resp.text.strip()}
+    if resp.status_code == 429:
+        raise RateLimitError(body.get("reason") or "Rate limit reached, retry in a few seconds")
+    if resp.status_code >= 400:
+        raise requests.HTTPError(f"HTTP {resp.status_code}: {body.get('reason') or body.get('message')}", response=resp)
+    return body
 
 
 def is_deliverable(email: str, key: str = FREE_KEY) -> bool:
@@ -102,7 +140,13 @@ if __name__ == "__main__":
             kept.append(email)
     print(f"\nDeliverable: {kept}")
 
-    # 3) Clean a CSV (expects a column named 'email'), writes clean.csv
+    # 3) Find a work email (Finder API, paid key only)
+    if not is_free(key):
+        res = find("Jane", "Doe", "example.com", key)
+        print(f"\nFind Jane Doe at example.com: {res.get('email') or res.get('message')} "
+              f"({res.get('permutations')} formats tested)")
+
+    # 4) Clean a CSV (expects a column named 'email'), writes clean.csv
     #    Uncomment to run against your own file.
     # with open("contacts.csv") as fin, open("clean.csv", "w", newline="") as fout:
     #     reader = csv.DictReader(fin)

@@ -35,6 +35,10 @@ For lists, add a **Loop Over Items** (batch size 1) plus a **Wait** node (about 
 
 [`workflow.json`](workflow.json) in this folder is a minimal, importable n8n workflow: a manual trigger, the HTTP Request node pre-filled, and an IF node that splits valid from invalid. Import it via **n8n > Workflows > Import from File**, then set your key (a paid key, or a free token to try it).
 
+## Find a work email
+
+The official node [`n8n-nodes-mailtester-ninja`](https://www.npmjs.com/package/n8n-nodes-mailtester-ninja) has a **Find** operation (paid key): first name, last name and company domain in, `found`, `email`, `guess`, `code`, `message` and `tried` out. With an HTTP Request node, call `https://happy.mailtester.ninja/find` with the query parameters `first`, `last`, `domain` and `key`. Each format tested counts as one verification. Details: [Finder API](../../README.md#find-a-work-email-finder-api).
+
 ## Free tier
 
 Avoid `key=free` in n8n cloud: its servers share their IP addresses with all its users, and the keyless tier is counted per IP. With a free token, space calls by 30 seconds: on the free tier the API answers HTTP 429 when you call too fast or reach the daily limit, and that answer is not a verdict. A paid key removes the wait.

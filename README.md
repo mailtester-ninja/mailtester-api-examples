@@ -1,6 +1,6 @@
 # MailTester Ninja API, examples for every stack
 
-Real time email verification you can drop into any language, workflow tool or AI agent. One HTTP call tells you whether an email address is valid and deliverable, and we store nothing.
+Real time email verification you can drop into any language, workflow tool or AI agent. One HTTP call tells you whether an email address is valid and deliverable, and we store nothing. A second endpoint, the Finder API, finds a person's work email from their name and company domain.
 
 - **Website:** https://mailtester.ninja
 - **API docs:** https://mailtester.ninja/api/
@@ -100,12 +100,61 @@ Branch on `code`, show `message` to humans.
 
 We never guess "valid" on a catch-all domain. We label the uncertainty honestly so you keep control.
 
+## Find a work email (Finder API)
+
+A second endpoint finds a person's work email from their name and company domain. It needs a paid key.
+
+```
+GET https://happy.mailtester.ninja/find
+```
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `first`   | yes | First name, for example `Jean-Pierre`. |
+| `last`    | yes | Last name, for example `De La Tour`. |
+| `domain`  | yes | Company domain, for example `example.com`. A website address or an email address at that domain works too. |
+| `key`     | yes | Your subscription key, without the `{` and `}`. |
+
+```bash
+curl "https://happy.mailtester.ninja/find?first=Jane&last=Doe&domain=example.com&key=YOUR_KEY"
+```
+
+```json
+{
+  "code": "ok",
+  "message": "Accepted",
+  "found": true,
+  "email": "jane.doe@example.com",
+  "guess": null,
+  "first": "Jane",
+  "last": "Doe",
+  "domain": "example.com",
+  "mx": "mx.example.com",
+  "permutations": 1,
+  "connections": 1,
+  "limit": 100000,
+  "rate": 1,
+  "duration": 1.84,
+  "reason": null
+}
+```
+
+- MailTester Ninja tests the most common formats one by one, from the most frequent: `first.last`, `flast`, `first`, `firstlast`, `first_last`, `f.last`. Names are written the way mail servers expect them: lowercase, accents removed, hyphens kept, spaces removed (Jean-Pierre De La Tour gives `jean-pierre.delatour`).
+- The search stops at the first address the mail server accepts, or when the answer applies to the whole domain. On a catch-all domain nothing can be confirmed, and `guess` holds the most common format.
+- Personal email providers such as gmail.com are not searched (`message` is `Webmail`): an accepted address there could belong to anyone with the same name.
+- `code`: `ok` found, `ko` not found, `mb` uncertain, `--` no answer (key problem or rate limit). `reason` explains, in plain English, why nothing was found.
+- **Billing:** each format tested counts as one verification against your daily limit and your rate, even when nothing is found (`permutations`). The `/find` call itself is not counted.
+- Over the rate of your key, the API answers HTTP 429 with a `Retry-After` header. One key can run up to 60 searches an hour on the same domain.
+
+Ready to run: [`find.sh`](examples/curl/find.sh) (cURL), `find()` in the [Python](examples/python) and [Node.js](examples/nodejs) examples, `mailtester_find()` in the [PHP](examples/php) example.
+
 ## Rate limits
 
 - **Free (`key=free` or a free token):** one request every 30 seconds. Over that pace, or past the daily limit, the API answers **HTTP 429** with `code` set to `--` and a JSON `message` saying how long to wait. A 429 is not a verdict: retry later, do not treat the address as invalid.
 - **Pro:** 11 requests per 10 seconds (100k per day).
 - **Ultimate:** 23 requests per 10 seconds (200k per day).
 - Buy a quantity at checkout to multiply the rate, for example Ultimate x5 = 1M per day.
+- **Finder API:** the same allowance. Each address format a search tests counts as one verification, and the search paces itself within the rate of your key.
 
 For lists, verify sequentially or in small batches and respect the rate. Every example in this repo that loops includes throttling, 30 seconds between calls on the free tier.
 
@@ -139,7 +188,7 @@ For lists, verify sequentially or in small batches and respect the rate. Every e
 
 **Validate at signup:** verify on form submit, block `ko` in real time so bad addresses never enter your database.
 
-**Enrich before outreach:** combine our [email finder](https://mailtester.ninja/email-finder/) to build the address and the verifier to confirm it before you send.
+**Enrich before outreach:** call the Finder API (or our [email finder](https://mailtester.ninja/email-finder/) on the web) with a name and a company domain: it returns an address the mail server has just accepted, ready to send.
 
 ## A note on privacy
 

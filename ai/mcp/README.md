@@ -17,7 +17,7 @@ No key yet? A [free API token](https://mailtester.ninja/free-email-verification-
 | Tool | Input | Returns |
 |---|---|---|
 | `verify_email` | `email` | `code` (`ok` valid, `ko` invalid, `mb` uncertain), `message` (Accepted, Rejected, Catch-All, No MX, Disposable...), `domain`, `mx` |
-| `find_email` | `first_name`, `last_name`, `domain`, optional `middle_name` | `found`, `email`, `tried`, `reason`. Tries the usual patterns (first.last, flast...) and stops at the first address the mail server accepts. Paid key only, each pattern counts as one check. |
+| `find_email` | `first_name`, `last_name`, `domain` | `found`, `email`, `guess`, `code`, `message`, `tried`, `reason`. Calls the [Finder API](../../README.md#find-a-work-email-finder-api): the 6 most common formats are tested one by one until the mail server accepts one; on a catch-all domain, `guess` holds the most common format. Paid key only, each format tested counts as one check. |
 
 No message is ever sent, and the server keeps no copy of the addresses it checks.
 

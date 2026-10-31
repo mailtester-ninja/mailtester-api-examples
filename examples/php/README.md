@@ -45,6 +45,22 @@ $keep = array_keys(array_filter($results, fn($r) => ($r['code'] ?? '') === 'ok')
 
 [`mailtester.php`](mailtester.php) holds `mailtester_verify`, `mailtester_is_deliverable` and `mailtester_clean_list`. Drop it in, or paste just the function you need.
 
+## Find a work email (paid key)
+
+```php
+require 'mailtester.php';
+
+$res = mailtester_find('Jane', 'Doe', 'example.com', getenv('MAILTESTER_KEY'));
+if ($res['found']) {
+    echo $res['email'], "\n";                    // an address the mail server just accepted
+} else {
+    echo $res['message'], ' ', $res['guess'], "\n"; // e.g. Catch-All and the most likely address
+}
+echo $res['permutations'], " formats tested\n";   // each one counts as a verification
+```
+
+`mailtester_find()` throws a `RuntimeException` on HTTP 429 (retry in a few seconds). Details: [Finder API](../../README.md#find-a-work-email-finder-api).
+
 ## Keys
 
 - **No key:** leave `MAILTESTER_KEY` unset and the example uses the free tier (`key=free`): 10 checks a day per IP, one request every 30 seconds.

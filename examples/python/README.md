@@ -48,6 +48,21 @@ for email, res in clean_list(emails, key):   # waits 30 s on the free tier, 1 s 
 python mailtester.py
 ```
 
+## Find a work email (paid key)
+
+```python
+from mailtester import find
+
+res = find("Jane", "Doe", "example.com", key)
+if res["found"]:
+    print(res["email"])                  # an address the mail server just accepted
+else:
+    print(res["message"], res["guess"])  # e.g. Catch-All and the most likely address
+print(res["permutations"], "formats tested")  # each one counts as a verification
+```
+
+`find()` raises `RateLimitError` on HTTP 429 (retry in a few seconds). Details: [Finder API](../../README.md#find-a-work-email-finder-api).
+
 ## Keys
 
 - **No key:** leave `MAILTESTER_KEY` unset and the example uses the free tier (`key=free`): 10 checks a day per IP, one request every 30 seconds.

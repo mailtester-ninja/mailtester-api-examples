@@ -39,6 +39,23 @@ On the free tier, a call made too soon or past the daily limit gets HTTP 429. Th
 
 See [`verify.sh`](verify.sh) in this folder.
 
+## Find a work email (paid key)
+
+The Finder API takes a first name, a last name and a company domain, and tests the most common address formats one by one until the mail server accepts one:
+
+```bash
+curl "https://happy.mailtester.ninja/find?first=Jane&last=Doe&domain=example.com&key=YOUR_KEY"
+```
+
+[`find.sh`](find.sh) prints the result and what to do with it:
+
+```bash
+MAILTESTER_KEY=your_key ./find.sh Jane Doe example.com
+MAILTESTER_KEY=your_key ./find.sh Jean-Pierre "De La Tour" example.com
+```
+
+Each format tested counts as one verification (`permutations` in the answer), even when nothing is found. On a catch-all domain, `guess` holds the most common format. Details: [Finder API](../../README.md#find-a-work-email-finder-api).
+
 ## Notes
 
 - URL encode the `email` value (the `+` and some characters matter).

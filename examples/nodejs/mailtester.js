@@ -1,5 +1,6 @@
 /**
- * MailTester Ninja, email verification in Node.js.
+ * MailTester Ninja, email verification in Node.js, and the Finder API
+ * (work email from a name and a company domain, paid key).
  *
  * Uses the built in fetch (Node 18+), no dependencies.
  * Keys:
@@ -10,6 +11,7 @@
  */
 
 const ENDPOINT = 'https://happy.mailtester.ninja/ninja';
+const FIND_ENDPOINT = 'https://happy.mailtester.ninja/find';
 const FREE_KEY = 'free';
 const FREE_DELAY_MS = 30000;
 
@@ -30,6 +32,24 @@ async function verify(email, key = FREE_KEY) {
   }
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
+}
+
+/**
+ * Find a work email address from a first name, a last name and a company domain (paid key).
+ * MailTester Ninja tests the most common formats one by one (first.last, flast, first,
+ * firstlast, first_last, f.last) and returns the first address the mail server accepts.
+ * Useful fields: found, email, guess (catch-all domains, not verified), code, message,
+ * permutations (formats tested, each one counted as a verification) and reason.
+ * Throws on HTTP 429 (the key is at its maximum rate: retry in a few seconds) and on
+ * other errors (400 invalid parameters, 403 free key).
+ */
+async function find(first, last, domain, key) {
+  const qs = new URLSearchParams({ first, last, domain, key });
+  const res = await fetch(`${FIND_ENDPOINT}?${qs}`);
+  const body = await res.json().catch(() => ({}));
+  if (res.status === 429) throw new Error(body.reason || 'Rate limit reached (HTTP 429), retry in a few seconds');
+  if (!res.ok) throw new Error(body.reason || body.message || `HTTP ${res.status}`);
+  return body;
 }
 
 /** True only when the address is clearly valid and deliverable. */
@@ -81,7 +101,13 @@ if (require.main === module) {
       if (result.code === 'ok') kept.push(email);
     }
     console.log('\nDeliverable:', kept);
+
+    // 3) find a work email (Finder API, paid key only)
+    if (!isFree(key)) {
+      const found = await find('Jane', 'Doe', 'example.com', key);
+      console.log(`\nFind Jane Doe at example.com: ${found.email || found.message} (${found.permutations} formats tested)`);
+    }
   })();
 }
 
-module.exports = { verify, isDeliverable, cleanList, isFree };
+module.exports = { verify, find, isDeliverable, cleanList, isFree };

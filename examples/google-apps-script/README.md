@@ -19,3 +19,7 @@ Verify a column of emails right inside Google Sheets, with Apps Script. No serve
 Docs: https://mailtester.ninja/api/ · Get a key: https://mailtester.ninja/verify-emails-unlimited/
 
 With a free token, `verifyColumn()` waits 30 seconds between rows, and an Apps Script run stops after 6 minutes: about 11 rows per run. A paid key goes 30 times faster.
+
+## Find a work email (paid key)
+
+The Finder API is the same kind of call: `GET https://happy.mailtester.ninja/find?first=Jane&last=Doe&domain=example.com&key=YOUR_KEY`, URL-encoded like the verification. Read `found`, `email`, `guess`, `code`, `message` and `permutations` from the JSON answer. Each format tested counts as one verification. Details: [Finder API](../../README.md#find-a-work-email-finder-api).

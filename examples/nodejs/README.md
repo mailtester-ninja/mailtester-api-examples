@@ -39,6 +39,19 @@ const keep = rows.filter(r => r.result.code === 'ok').map(r => r.email);
 
 [`mailtester.js`](mailtester.js) exports `verify`, `isDeliverable` and `cleanList`, and runs as is.
 
+## Find a work email (paid key)
+
+```js
+const { find } = require('./mailtester');
+
+const res = await find('Jane', 'Doe', 'example.com', process.env.MAILTESTER_KEY);
+if (res.found) console.log(res.email);          // an address the mail server just accepted
+else console.log(res.message, res.guess);       // e.g. Catch-All and the most likely address
+console.log(res.permutations, 'formats tested'); // each one counts as a verification
+```
+
+`find()` throws on HTTP 429 (retry in a few seconds). Details: [Finder API](../../README.md#find-a-work-email-finder-api).
+
 ## ESM
 
 Using `import`? Swap `require`/`module.exports` for `import`/`export`, the fetch call is identical.
